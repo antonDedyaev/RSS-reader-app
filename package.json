@@ -1,0 +1,45 @@
+{
+  "name": "@hexlet/code",
+  "version": "1.0.0",
+  "description": "My 3d project at Hexlet",
+  "main": "src/index.js",
+  "scripts": {
+    "build": "webpack --config webpack.config.js",
+    "start": "webpack serve --mode development",
+    "test": "jest --colors"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Aintdead86/frontend-project-lvl3.git"
+  },
+  "keywords": [
+    "Hexlet",
+    "3d",
+    "project"
+  ],
+  "author": "Anton Dedyaev",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Aintdead86/frontend-project-lvl3/issues"
+  },
+  "homepage": "https://github.com/Aintdead86/frontend-project-lvl3#readme",
+  "devDependencies": {
+    "autoprefixer": "^10.4.8",
+    "css-loader": "^6.7.1",
+    "eslint": "^8.21.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.26.0",
+    "html-webpack-plugin": "^5.5.0",
+    "postcss-loader": "^7.0.1",
+    "sass": "^1.54.4",
+    "sass-loader": "^13.0.2",
+    "style-loader": "^3.3.1",
+    "webpack": "^5.74.0",
+    "webpack-cli": "^4.10.0",
+    "webpack-dev-server": "^4.10.0"
+  },
+  "dependencies": {
+    "@popperjs/core": "^2.11.6",
+    "bootstrap": "^5.2.0"
+  }
+}
