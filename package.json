@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "My 3d project at Hexlet",
   "main": "src/index.js",
+  "type": "module",
   "scripts": {
     "build": "webpack --config webpack.config.js",
     "start": "webpack serve --mode development",
@@ -30,6 +31,7 @@
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.26.0",
     "html-webpack-plugin": "^5.5.0",
+    "mini-css-extract-plugin": "^2.6.1",
     "postcss-loader": "^7.0.1",
     "sass": "^1.54.4",
     "sass-loader": "^13.0.2",
@@ -40,6 +42,9 @@
   },
   "dependencies": {
     "@popperjs/core": "^2.11.6",
-    "bootstrap": "^5.2.0"
+    "bootstrap": "^5.2.0",
+    "i18next": "^21.9.1",
+    "on-change": "^4.0.1",
+    "yup": "^0.32.11"
   }
 }
