@@ -23,7 +23,7 @@ export default {
   devServer: {
     static: path.resolve(__dirname, 'dist'),
     port: 5050,
-    //hot: true,
+    hot: true,
   },
   module: {
     rules: [
