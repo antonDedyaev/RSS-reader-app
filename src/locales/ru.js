@@ -1,8 +1,15 @@
 export default {
   translation: {
+    uIElements: {
+      successMessage: 'RSS успешно добавлен',
+      feedTitle: 'Фиды',
+      postTitle: 'Посты',
+      viewButton: 'Просмотр',
+    },
     errors: {
-      invalidUrl: 'Введите корректную RSS-ссылку',
-      urlAlreadyAdded: 'Feed уже добавлен',
+      invalidUrl: 'Ссылка должна быть валидным URL',
+      urlAlreadyAdded: 'RSS уже существует',
+      noValidRss: 'Ресурс не содержит валидный RSS',
     },
   },
 };
