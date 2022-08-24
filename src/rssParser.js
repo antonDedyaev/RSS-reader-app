@@ -12,7 +12,6 @@ const parseRss = (content) => {
     error.message = 'noValidRss';
     throw error;
   }
-  console.log(feedDom);
 
   const title = feedDom.querySelector('title').textContent;
   const description = feedDom.querySelector('description').textContent;

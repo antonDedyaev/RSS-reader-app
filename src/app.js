@@ -4,6 +4,7 @@ import './styles/styles.scss';
 import * as yup from 'yup';
 import i18next from 'i18next';
 import axios from 'axios';
+import _ from 'lodash';
 import ru from './locales/ru.js';
 import watcher from './view.js';
 
@@ -60,11 +61,11 @@ const app = () => {
       .notOneOf(watchedState.addedFeeds);
 
     schema.validate(newUrl)
-      .then(() => {
+      .then((link) => {
         watchedState.rssForm.processState = 'loading';
         watchedState.rssForm.errors = null;
-        watchedState.addedFeeds.push(newUrl);
-        return getResponse(newUrl);
+        watchedState.addedFeeds.push(link);
+        return getResponse(link);
       })
       .then((response) => {
         const parsedData = parseRss(response.data.contents);
@@ -76,7 +77,6 @@ const app = () => {
           Object.assign(post, { id: postCounter, feedId: parsedData.feed.id });
         });
         watchedState.posts = parsedData.posts.concat(watchedState.posts);
-        console.log(parsedData);
         watchedState.rssForm.processState = 'success';
       })
       .catch((err) => {
@@ -85,6 +85,27 @@ const app = () => {
         console.log(watchedState.rssForm);
       });
   });
+  const getUpdatedPosts = () => {
+    const promises = watchedState.addedFeeds.map((addedFeed) => getResponse(addedFeed)
+      .then((updatedResponse) => parseRss(updatedResponse.data.contents))
+      .then((parsedContents) => {
+        const { feed, posts } = parsedContents;
+        watchedState.feeds.forEach((oldFeed) => {
+          if (oldFeed.title === feed.title) {
+            feed.id = oldFeed.id;
+          }
+        });
+        const newPosts = _.differenceBy(posts, watchedState.posts, 'title');
+        newPosts.forEach((newPost) => {
+          postCounter += 1;
+          Object.assign(newPost, { id: postCounter, feedId: feed.id });
+        });
+        watchedState.posts = newPosts.concat(watchedState.posts);
+      })
+      .catch((err) => console.log(err)));
+    Promise.all(promises).then(() => setTimeout(() => getUpdatedPosts(), 5000));
+  };
+  getUpdatedPosts();
 };
 
 export default app;
