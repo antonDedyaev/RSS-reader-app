@@ -10,6 +10,22 @@ const modalHandler = (e, post) => {
   modalArticle.href = post.link;
 };
 
+const buildContainerBody = (i18nextInstance, i18text, listElements) => {
+  const mainDiv = document.createElement('div');
+  mainDiv.classList.add('card', 'border-0');
+  const mainDivBody = document.createElement('div');
+  mainDivBody.classList.add('card-body');
+  const mainDivHeader = document.createElement('h2');
+  mainDivHeader.classList.add('card-title', 'h4');
+  mainDivHeader.innerHTML = i18nextInstance.t(i18text);
+  mainDivBody.append(mainDivHeader);
+  const ulEl = document.createElement('ul');
+  ulEl.classList.add('list-group', 'border-0', 'rounded-0');
+  ulEl.replaceChildren(...listElements);
+  mainDiv.append(mainDivBody, ulEl);
+  return mainDiv;
+};
+
 const renderProcessState = (state, i18nextInstance) => {
   const rssForm = document.querySelector('.rss-form');
   const input = document.getElementById('url-input');
@@ -53,18 +69,8 @@ const renderErrors = (state, i18nextInstance) => {
 const renderFeeds = (state, i18nextInstance) => {
   const container = document.querySelector('.feeds');
   container.innerHTML = '';
-  const feedDiv = document.createElement('div');
-  feedDiv.classList.add('card', 'border-0');
-  const feedDivBody = document.createElement('div');
-  feedDivBody.classList.add('card-body');
-  const feedHeader = document.createElement('h2');
-  feedHeader.classList.add('card-title', 'h4');
-  feedHeader.innerHTML = i18nextInstance.t('uIElements.feedTitle');
-  feedDivBody.append(feedHeader);
-  const feedUl = document.createElement('ul');
-  feedUl.classList.add('list-group', 'border-0', 'rounded-0');
 
-  state.feeds.forEach((feed) => {
+  const feeds = state.feeds.map((feed) => {
     const liEl = document.createElement('li');
     liEl.classList.add('list-group-item', 'border-0', 'border-end-0');
     const liTitle = document.createElement('h3');
@@ -74,36 +80,22 @@ const renderFeeds = (state, i18nextInstance) => {
     liDescription.classList.add('m-0', 'small', 'text-black-50');
     liDescription.innerHTML = feed.description;
     liEl.append(liTitle, liDescription);
-    feedUl.append(liEl);
+    return liEl;
   });
-  feedDiv.append(feedDivBody, feedUl);
-  container.append(feedDiv);
+  const containerBody = buildContainerBody(i18nextInstance, 'uIElements.feedTitle', feeds);
+  container.append(containerBody);
 };
 
 const renderPosts = (state, i18nextInstance) => {
   const container = document.querySelector('.posts');
   container.innerHTML = '';
-  const postDiv = document.createElement('div');
-  postDiv.classList.add('card', 'border-0');
-  const postDivBody = document.createElement('div');
-  postDivBody.classList.add('card-body');
-  const postHeader = document.createElement('h2');
-  postHeader.classList.add('card-title', 'h4');
-  postHeader.innerHTML = i18nextInstance.t('uIElements.postTitle');
-  postDivBody.append(postHeader);
 
-  const postUl = document.createElement('ul');
-  postUl.classList.add('list-group', 'border-0', 'rounded-0');
-
-  state.posts.forEach((post) => {
+  const posts = state.posts.map((post) => {
     const liEl = document.createElement('li');
     liEl.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
     const aEl = document.createElement('a');
     aEl.setAttribute('href', post.link);
-    const classList = state.viewedPosts.includes(post.id)
-      ? ['fw-normal', 'link-secondary']
-      : ['fw-bold'];
-    aEl.classList = classList;
+    aEl.classList.add(state.viewedPosts.includes(post.id) ? ('fw-normal', 'link-secondary') : ('fw-bold'));
     aEl.setAttribute('data-id', post.id);
     aEl.setAttribute('target', '_blank');
     aEl.setAttribute('rel', 'noopener noreferrer');
@@ -118,10 +110,10 @@ const renderPosts = (state, i18nextInstance) => {
     viewButton.innerHTML = i18nextInstance.t('uIElements.viewButton');
     viewButton.addEventListener('click', (e) => modalHandler(e, post));
     liEl.append(aEl, viewButton);
-    postUl.append(liEl);
+    return liEl;
   });
-  postDiv.append(postDivBody, postUl);
-  container.append(postDiv);
+  const containerBody = buildContainerBody(i18nextInstance, 'uIElements.postTitle', posts);
+  container.append(containerBody);
 };
 
 const renderViewedPosts = (state) => {
