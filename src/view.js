@@ -1,5 +1,15 @@
 import onChange from 'on-change';
 
+const modalHandler = (e, post) => {
+  e.preventDefault();
+  const modalHeader = document.querySelector('.modal-title');
+  const modalBody = document.querySelector('.modal-body');
+  const modalArticle = document.querySelector('.full-article');
+  modalHeader.innerHTML = post.title;
+  modalBody.innerHTML = post.description;
+  modalArticle.href = post.link;
+};
+
 const renderProcessState = (state, i18nextInstance) => {
   const rssForm = document.querySelector('.rss-form');
   const input = document.getElementById('url-input');
@@ -51,7 +61,6 @@ const renderFeeds = (state, i18nextInstance) => {
   feedHeader.classList.add('card-title', 'h4');
   feedHeader.innerHTML = i18nextInstance.t('uIElements.feedTitle');
   feedDivBody.append(feedHeader);
-
   const feedUl = document.createElement('ul');
   feedUl.classList.add('list-group', 'border-0', 'rounded-0');
 
@@ -90,9 +99,12 @@ const renderPosts = (state, i18nextInstance) => {
     const liEl = document.createElement('li');
     liEl.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
     const aEl = document.createElement('a');
-    aEl.classList.add('fw-bold');
     aEl.setAttribute('href', post.link);
-    aEl.setAttribute('data-id', post.iD);
+    const classList = state.viewedPosts.includes(post.id)
+      ? ['fw-normal', 'link-secondary']
+      : ['fw-bold'];
+    aEl.classList = classList;
+    aEl.setAttribute('data-id', post.id);
     aEl.setAttribute('target', '_blank');
     aEl.setAttribute('rel', 'noopener noreferrer');
     aEl.innerHTML = post.title;
@@ -100,15 +112,24 @@ const renderPosts = (state, i18nextInstance) => {
     const viewButton = document.createElement('button');
     viewButton.classList.add('btn', 'btn-outline-primary', 'btn-sm');
     viewButton.setAttribute('type', 'button');
-    viewButton.setAttribute('data-id', post.iD);
+    viewButton.setAttribute('data-id', post.id);
     viewButton.setAttribute('data-bs-toggle', 'modal');
     viewButton.setAttribute('data-bs-target', '#modal');
     viewButton.innerHTML = i18nextInstance.t('uIElements.viewButton');
+    viewButton.addEventListener('click', (e) => modalHandler(e, post));
     liEl.append(aEl, viewButton);
     postUl.append(liEl);
   });
   postDiv.append(postDivBody, postUl);
   container.append(postDiv);
+};
+
+const renderViewedPosts = (state) => {
+  state.viewedPosts.forEach((id) => {
+    const viewedEl = document.querySelector(`[data-id="${id}"]`);
+    viewedEl.classList.remove('fw-bold');
+    viewedEl.classList.add('fw-normal', 'link-secondary');
+  });
 };
 
 const watcher = (state, i18nextInstance) => onChange(state, (path) => {
@@ -124,6 +145,9 @@ const watcher = (state, i18nextInstance) => onChange(state, (path) => {
       break;
     case 'posts':
       renderPosts(state, i18nextInstance);
+      break;
+    case 'viewedPosts':
+      renderViewedPosts(state);
       break;
     default:
       break;

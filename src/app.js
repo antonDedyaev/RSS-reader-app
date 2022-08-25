@@ -18,7 +18,7 @@ const app = () => {
   const i18nextInstance = i18next.createInstance();
   i18nextInstance.init({
     lng: defaultLanguage,
-    debug: true,
+    debug: false,
     resources: {
       ru,
     },
@@ -38,7 +38,8 @@ const app = () => {
       processState: 'filling',
       errors: null,
     },
-    addedFeeds: [],
+    addedUrls: [],
+    viewedPosts: [],
     feeds: [],
     posts: [],
   };
@@ -49,6 +50,8 @@ const app = () => {
   const watchedState = watcher(state, i18nextInstance);
 
   const rssForm = document.querySelector('.rss-form');
+  const postsContainer = document.querySelector('.posts');
+
   rssForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
@@ -58,13 +61,13 @@ const app = () => {
       .string()
       .required()
       .url()
-      .notOneOf(watchedState.addedFeeds);
+      .notOneOf(watchedState.addedUrls);
 
     schema.validate(newUrl)
       .then((link) => {
         watchedState.rssForm.processState = 'loading';
         watchedState.rssForm.errors = null;
-        watchedState.addedFeeds.push(link);
+        watchedState.addedUrls.push(link);
         return getResponse(link);
       })
       .then((response) => {
@@ -82,11 +85,17 @@ const app = () => {
       .catch((err) => {
         watchedState.rssForm.processState = 'fault';
         watchedState.rssForm.errors = err.message;
-        console.log(watchedState.rssForm);
       });
   });
+
+  postsContainer.addEventListener('click', (e) => {
+    const selectedPost = watchedState.posts
+      .flatMap((el) => (el.id === Number(e.target.dataset.id) ? el.id : []));
+    watchedState.viewedPosts = selectedPost.concat(watchedState.viewedPosts);
+  });
+
   const getUpdatedPosts = () => {
-    const promises = watchedState.addedFeeds.map((addedFeed) => getResponse(addedFeed)
+    const promises = watchedState.addedUrls.map((addedFeed) => getResponse(addedFeed)
       .then((updatedResponse) => parseRss(updatedResponse.data.contents))
       .then((parsedContents) => {
         const { feed, posts } = parsedContents;
