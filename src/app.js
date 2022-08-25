@@ -81,10 +81,15 @@ const app = () => {
         });
         watchedState.posts = parsedData.posts.concat(watchedState.posts);
         watchedState.rssForm.processState = 'success';
+        watchedState.rssForm.errors = null;
       })
       .catch((err) => {
         watchedState.rssForm.processState = 'fault';
-        watchedState.rssForm.errors = err.message;
+        if (err.message === 'Network Error') {
+          watchedState.rssForm.errors = 'networkError';
+        } else {
+          watchedState.rssForm.errors = err.message;
+        }
       });
   });
 
@@ -95,7 +100,7 @@ const app = () => {
   });
 
   const getUpdatedPosts = () => {
-    const promises = watchedState.addedUrls.map((addedFeed) => getResponse(addedFeed)
+    const promises = watchedState.addedUrls.map((addedUrl) => getResponse(addedUrl)
       .then((updatedResponse) => parseRss(updatedResponse.data.contents))
       .then((parsedContents) => {
         const { feed, posts } = parsedContents;
@@ -111,7 +116,12 @@ const app = () => {
         });
         watchedState.posts = newPosts.concat(watchedState.posts);
       })
-      .catch((err) => console.log(err)));
+      .catch((err) => {
+        watchedState.rssForm.processState = 'fault';
+        if (err.message === 'Network Error') {
+          watchedState.rssForm.errors = 'networkError';
+        }
+      }));
     Promise.all(promises).then(() => setTimeout(() => getUpdatedPosts(), 5000));
   };
   getUpdatedPosts();
