@@ -6,6 +6,7 @@
 ## RSS reader
 
 Rss reader is used to read and agreggate data from RSS feeds, such as news and blogs. Add any number of RSS feeds, the app will update them automatically and include new posts into the list.
+
 Try it: https://frontend-project-lvl3-chi-brown.vercel.app
 
 Installation:
@@ -24,6 +25,7 @@ make install
 npm link
 ```
 Compiling:
+
 Compile the package with webpack using:
 
 ```sh
