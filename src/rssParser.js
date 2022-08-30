@@ -15,7 +15,6 @@ const parseRss = (content) => {
 
   const title = feedDom.querySelector('title').textContent;
   const description = feedDom.querySelector('description').textContent;
-  console.log(JSON.stringify(feedDom));
   const feed = {
     title,
     description,

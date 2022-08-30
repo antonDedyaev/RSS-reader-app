@@ -63,10 +63,10 @@ const app = () => {
       .notOneOf(watchedState.addedUrls);
 
     schema.validate(newUrl)
-      .then((link) => {
-        watchedState.rssForm.processState = 'loading';
+      .then(() => {
         watchedState.rssForm.errors = null;
-        return getResponse(link);
+        watchedState.rssForm.processState = 'loading';
+        return getResponse(newUrl);
       })
       .then((response) => {
         const parsedData = parseRss(response.data.contents);
@@ -78,8 +78,8 @@ const app = () => {
           return { ...post, id: postId, feedId: parsedData.feed.id };
         });
         watchedState.posts = postsWithId.concat(watchedState.posts);
-        watchedState.rssForm.processState = 'success';
         watchedState.rssForm.errors = null;
+        watchedState.rssForm.processState = 'success';
       })
       .catch((err) => {
         watchedState.rssForm.processState = 'fault';
@@ -122,8 +122,6 @@ const app = () => {
         watchedState.rssForm.processState = 'fault';
         if (err.name === 'AxiosError') {
           watchedState.rssForm.errors = 'networkFault';
-        } else {
-          watchedState.rssForm.errors = err.message;
         }
       }));
     Promise.all(promises).finally(() => setTimeout(() => getUpdatedPosts(), 5000));
