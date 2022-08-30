@@ -12,6 +12,8 @@ import { pullNewFeeds, parseRss } from './rssParser.js';
 
 const getResponse = (url) => axios.get(pullNewFeeds(url));
 
+const generateId = (elements) => ((elements.length === 0) ? 1 : elements.length + 1);
+
 const app = () => {
   const defaultLanguage = 'ru';
 
@@ -44,9 +46,6 @@ const app = () => {
     posts: [],
   };
 
-  let feedCounter = 0;
-  let postCounter = 0;
-
   const watchedState = watcher(state, i18nextInstance);
 
   const rssForm = document.querySelector('.rss-form');
@@ -67,28 +66,31 @@ const app = () => {
       .then((link) => {
         watchedState.rssForm.processState = 'loading';
         watchedState.rssForm.errors = null;
-        watchedState.addedUrls.push(link);
         return getResponse(link);
       })
       .then((response) => {
         const parsedData = parseRss(response.data.contents);
-        feedCounter += 1;
-        parsedData.feed.id = feedCounter;
+        parsedData.feed.id = generateId(watchedState.feeds);
         watchedState.feeds.unshift(parsedData.feed);
-        parsedData.posts.forEach((post) => {
-          postCounter += 1;
-          Object.assign(post, { id: postCounter, feedId: parsedData.feed.id });
+        const postsWithId = parsedData.posts.map((post, index) => {
+          const postId = generateId(watchedState.posts) + index;
+          return { ...post, id: postId, feedId: parsedData.feed.id };
         });
-        watchedState.posts = parsedData.posts.concat(watchedState.posts);
+        watchedState.addedUrls.push(response.data.status.url);
+        watchedState.posts = postsWithId.concat(watchedState.posts);
         watchedState.rssForm.processState = 'success';
         watchedState.rssForm.errors = null;
       })
       .catch((err) => {
         watchedState.rssForm.processState = 'fault';
-        if (err.message === 'Network Error') {
-          watchedState.rssForm.errors = 'networkError';
-        } else {
+        if (err.name === 'ValidationError') {
           watchedState.rssForm.errors = err.message;
+        } else if (err.name === 'AxiosError') {
+          watchedState.rssForm.errors = 'networkFault';
+        } else if (err.name === 'parsingError') {
+          watchedState.rssForm.errors = 'parsingFault';
+        } else {
+          watchedState.rssForm.errors = 'unknownError';
         }
       });
   });
@@ -110,16 +112,18 @@ const app = () => {
           }
         });
         const newPosts = _.differenceBy(posts, watchedState.posts, 'title');
-        newPosts.forEach((newPost) => {
-          postCounter += 1;
-          Object.assign(newPost, { id: postCounter, feedId: feed.id });
+        const newPostWithId = newPosts.map((post, index) => {
+          const newPostId = generateId(watchedState.posts) + index;
+          return { ...post, id: newPostId, feedId: feed.id };
         });
-        watchedState.posts = newPosts.concat(watchedState.posts);
+        watchedState.posts = newPostWithId.concat(watchedState.posts);
       })
       .catch((err) => {
         watchedState.rssForm.processState = 'fault';
-        if (err.message === 'Network Error') {
-          watchedState.rssForm.errors = 'networkError';
+        if (err.name === 'AxiosError') {
+          watchedState.rssForm.errors = 'networkFault';
+        } else {
+          watchedState.rssForm.errors = err.message;
         }
       }));
     Promise.all(promises).then(() => setTimeout(() => getUpdatedPosts(), 5000));
