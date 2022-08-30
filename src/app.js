@@ -70,6 +70,7 @@ const app = () => {
       })
       .then((response) => {
         const parsedData = parseRss(response.data.contents);
+        watchedState.addedUrls.push(response.data.status.url);
         parsedData.feed.id = generateId(watchedState.feeds);
         watchedState.feeds.unshift(parsedData.feed);
         const postsWithId = parsedData.posts.map((post, index) => {
@@ -78,7 +79,6 @@ const app = () => {
         });
         watchedState.posts = postsWithId.concat(watchedState.posts);
         watchedState.rssForm.processState = 'success';
-        watchedState.addedUrls.push(response.data.status.url);
         watchedState.rssForm.errors = null;
       })
       .catch((err) => {
