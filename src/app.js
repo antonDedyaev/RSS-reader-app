@@ -90,7 +90,7 @@ const app = () => {
         } else if (err.name === 'parsingError') {
           watchedState.rssForm.errors = 'parsingFault';
         } else {
-          watchedState.rssForm.errors = err.message;
+          watchedState.rssForm.errors = watchedState.addedUrls;
         }
       });
   });
