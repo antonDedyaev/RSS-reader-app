@@ -8,8 +8,8 @@ const pullNewFeeds = (url) => {
 const parseRss = (content) => {
   const feedDom = new DOMParser().parseFromString(content, 'application/xml');
   if (feedDom.querySelector('parsererror')) {
-    const error = new Error();
-    error.message = 'noValidRss';
+    const error = new Error(feedDom.querySelector('parsererror').textContent);
+    error.name = 'parsingError';
     throw error;
   }
 
