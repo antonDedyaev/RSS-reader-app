@@ -76,9 +76,9 @@ const app = () => {
           const postId = generateId(watchedState.posts) + index;
           return { ...post, id: postId, feedId: parsedData.feed.id };
         });
-        watchedState.addedUrls.push(response.data.status.url);
         watchedState.posts = postsWithId.concat(watchedState.posts);
         watchedState.rssForm.processState = 'success';
+        watchedState.addedUrls.push(response.data.status.url);
         watchedState.rssForm.errors = null;
       })
       .catch((err) => {
@@ -117,7 +117,6 @@ const app = () => {
           return { ...post, id: newPostId, feedId: feed.id };
         });
         watchedState.posts = newPostWithId.concat(watchedState.posts);
-        watchedState.rssForm.processState = 'success';
       })
       .catch((err) => {
         watchedState.rssForm.processState = 'fault';
