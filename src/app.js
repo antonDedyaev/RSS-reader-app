@@ -117,6 +117,7 @@ const app = () => {
           return { ...post, id: newPostId, feedId: feed.id };
         });
         watchedState.posts = newPostWithId.concat(watchedState.posts);
+        watchedState.rssForm.processState = 'success';
       })
       .catch((err) => {
         watchedState.rssForm.processState = 'fault';
