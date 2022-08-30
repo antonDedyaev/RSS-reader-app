@@ -60,7 +60,7 @@ const app = () => {
       .string()
       .required()
       .url()
-      .notOneOf(watchedState.addedUrls);
+      .notOneOf(watchedState.feeds.map((feed) => feed.url));
 
     schema.validate(newUrl)
       .then(() => {
@@ -69,8 +69,8 @@ const app = () => {
         return getResponse(newUrl);
       })
       .then((response) => {
-        const parsedData = parseRss(response.data.contents);
-        watchedState.addedUrls.push(response.data.status.url);
+        const parsedData = parseRss(response.data.contents, newUrl);
+        //watchedState.addedUrls.push(response.data.status.url);
         parsedData.feed.id = generateId(watchedState.feeds);
         watchedState.feeds.unshift(parsedData.feed);
         const postsWithId = parsedData.posts.map((post, index) => {
@@ -102,7 +102,8 @@ const app = () => {
   });
 
   const getUpdatedPosts = () => {
-    const promises = watchedState.addedUrls.map((addedUrl) => getResponse(addedUrl)
+    const urls = watchedState.feeds.map((feed) => feed.url);
+    const promises = urls.map((url) => getResponse(url)
       .then((updatedResponse) => parseRss(updatedResponse.data.contents))
       .then((parsedContents) => {
         const { feed, posts } = parsedContents;

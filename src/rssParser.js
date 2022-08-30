@@ -5,7 +5,7 @@ const pullNewFeeds = (url) => {
   return uniqueFeedUrl;
 };
 
-const parseRss = (content) => {
+const parseRss = (content, url = null) => {
   const feedDom = new DOMParser().parseFromString(content, 'application/xml');
   if (feedDom.querySelector('parsererror')) {
     const error = new Error(feedDom.querySelector('parsererror').textContent);
@@ -18,6 +18,7 @@ const parseRss = (content) => {
   const feed = {
     title,
     description,
+    url,
   };
 
   const items = feedDom.querySelectorAll('item');
