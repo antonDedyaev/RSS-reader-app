@@ -56,7 +56,7 @@ const renderProcessState = (state, i18nextInstance) => {
       feedBack.classList.add('text-danger');
       break;
     default:
-      break;
+      throw new Error(`Unknown process state: ${state.rssForm.processState}`);
   }
   input.focus();
 };
@@ -141,8 +141,10 @@ const watcher = (state, i18nextInstance) => onChange(state, (path) => {
     case 'viewedPosts':
       renderViewedPosts(state);
       break;
-    default:
+    case 'addedUrls':
       break;
+    default:
+      throw new Error(`Unknown path: ${path}`);
   }
 });
 
