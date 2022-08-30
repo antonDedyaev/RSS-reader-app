@@ -40,10 +40,9 @@ const app = () => {
       processState: 'filling',
       errors: null,
     },
-    addedUrls: [],
-    viewedPosts: [],
     feeds: [],
     posts: [],
+    viewedPosts: [],
   };
 
   const watchedState = watcher(state, i18nextInstance);
@@ -70,7 +69,6 @@ const app = () => {
       })
       .then((response) => {
         const parsedData = parseRss(response.data.contents, newUrl);
-        //watchedState.addedUrls.push(response.data.status.url);
         parsedData.feed.id = generateId(watchedState.feeds);
         watchedState.feeds.unshift(parsedData.feed);
         const postsWithId = parsedData.posts.map((post, index) => {
@@ -124,6 +122,7 @@ const app = () => {
         if (err.name === 'AxiosError') {
           watchedState.rssForm.errors = 'networkFault';
         }
+        watchedState.rssForm.errors = err.message;
       }));
     Promise.all(promises).finally(() => setTimeout(() => getUpdatedPosts(), 5000));
   };

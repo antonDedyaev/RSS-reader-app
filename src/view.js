@@ -141,8 +141,6 @@ const watcher = (state, i18nextInstance) => onChange(state, (path) => {
     case 'viewedPosts':
       renderViewedPosts(state);
       break;
-    case 'addedUrls':
-      break;
     default:
       throw new Error(`Unknown path: ${path}`);
   }
