@@ -9,8 +9,9 @@ export default {
     errors: {
       invalidUrl: 'Ссылка должна быть валидным URL',
       urlAlreadyAdded: 'RSS уже существует',
-      noValidRss: 'Ресурс не содержит валидный RSS',
-      networkError: 'Ошибка сети',
+      parsingFault: 'Ресурс не содержит валидный RSS',
+      networkFault: 'Ошибка сети',
+      unknownError: 'Что-то пошло не так',
     },
   },
 };
