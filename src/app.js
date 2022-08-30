@@ -126,7 +126,7 @@ const app = () => {
           watchedState.rssForm.errors = err.message;
         }
       }));
-    Promise.all(promises).then(() => setTimeout(() => getUpdatedPosts(), 5000));
+    Promise.all(promises).finally(() => setTimeout(() => getUpdatedPosts(), 5000));
   };
   getUpdatedPosts();
 };
