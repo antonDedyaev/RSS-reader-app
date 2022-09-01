@@ -26,13 +26,13 @@ const buildContainerBody = (i18nextInstance, i18text, listElements) => {
   return mainDiv;
 };
 
-const renderProcessState = (state, i18nextInstance) => {
+const renderProcessState = (status, i18nextInstance) => {
   const rssForm = document.querySelector('.rss-form');
   const input = document.getElementById('url-input');
   const submitButton = document.querySelector('.px-sm-5');
   const feedBack = document.querySelector('.feedback');
 
-  switch (state.rssForm.processState) {
+  switch (status) {
     case 'filling':
       submitButton.disabled = false;
       input.classList.remove('is-invalid');
@@ -56,21 +56,21 @@ const renderProcessState = (state, i18nextInstance) => {
       feedBack.classList.add('text-danger');
       break;
     default:
-      throw new Error(`Unknown process state: ${state.rssForm.processState}`);
+      throw new Error(`Unknown process state: ${status}`);
   }
   input.focus();
 };
 
-const renderErrors = (state, i18nextInstance) => {
+const renderErrors = (errors, i18nextInstance) => {
   const errorField = document.querySelector('.feedback');
-  errorField.innerHTML = state.rssForm.errors ? i18nextInstance.t(`errors.${state.rssForm.errors}`) : null;
+  errorField.innerHTML = errors ? i18nextInstance.t(`errors.${errors}`) : null;
 };
 
-const renderFeeds = (state, i18nextInstance) => {
+const renderFeeds = (feeds, i18nextInstance) => {
   const container = document.querySelector('.feeds');
   container.innerHTML = '';
 
-  const feeds = state.feeds.map((feed) => {
+  const feedList = feeds.map((feed) => {
     const liEl = document.createElement('li');
     liEl.classList.add('list-group-item', 'border-0', 'border-end-0');
     const liTitle = document.createElement('h3');
@@ -82,7 +82,7 @@ const renderFeeds = (state, i18nextInstance) => {
     liEl.append(liTitle, liDescription);
     return liEl;
   });
-  const containerBody = buildContainerBody(i18nextInstance, 'uIElements.feedTitle', feeds);
+  const containerBody = buildContainerBody(i18nextInstance, 'uIElements.feedTitle', feedList);
   container.append(containerBody);
 };
 
@@ -90,7 +90,7 @@ const renderPosts = (state, i18nextInstance) => {
   const container = document.querySelector('.posts');
   container.innerHTML = '';
 
-  const posts = state.posts.map((post) => {
+  const postList = state.posts.map((post) => {
     const liEl = document.createElement('li');
     liEl.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
     const aEl = document.createElement('a');
@@ -112,12 +112,12 @@ const renderPosts = (state, i18nextInstance) => {
     liEl.append(aEl, viewButton);
     return liEl;
   });
-  const containerBody = buildContainerBody(i18nextInstance, 'uIElements.postTitle', posts);
+  const containerBody = buildContainerBody(i18nextInstance, 'uIElements.postTitle', postList);
   container.append(containerBody);
 };
 
-const renderViewedPosts = (state) => {
-  state.viewedPosts.forEach((id) => {
+const renderViewedPosts = (viewedPosts) => {
+  viewedPosts.forEach((id) => {
     const viewedEl = document.querySelector(`[data-id="${id}"]`);
     viewedEl.classList.remove('fw-bold');
     viewedEl.classList.add('fw-normal', 'link-secondary');
@@ -127,19 +127,19 @@ const renderViewedPosts = (state) => {
 const watcher = (state, i18nextInstance) => onChange(state, (path) => {
   switch (path) {
     case 'rssForm.processState':
-      renderProcessState(state, i18nextInstance);
+      renderProcessState(state.rssForm.processState, i18nextInstance);
       break;
     case 'rssForm.errors':
-      renderErrors(state, i18nextInstance);
+      renderErrors(state.rssForm.errors, i18nextInstance);
       break;
     case 'feeds':
-      renderFeeds(state, i18nextInstance);
+      renderFeeds(state.feeds, i18nextInstance);
       break;
     case 'posts':
       renderPosts(state, i18nextInstance);
       break;
     case 'viewedPosts':
-      renderViewedPosts(state);
+      renderViewedPosts(state.viewedPosts);
       break;
     default:
       throw new Error(`Unknown path: ${path}`);
