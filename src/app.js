@@ -8,9 +8,9 @@ import _ from 'lodash';
 import ru from './locales/ru.js';
 import watcher from './view.js';
 
-import { pullNewFeeds, parseRss } from './rssParser.js';
+import { getProxiedUrl, parseRss } from './rssParser.js';
 
-const getResponse = (url) => axios.get(pullNewFeeds(url));
+const getResponse = (url) => axios.get(getProxiedUrl(url));
 
 const generateId = (elements) => ((elements.length === 0) ? 1 : elements.length + 1);
 
@@ -81,14 +81,17 @@ const app = () => {
       })
       .catch((err) => {
         watchedState.rssForm.processState = 'fault';
-        if (err.name === 'ValidationError') {
-          watchedState.rssForm.errors = err.message;
-        } else if (err.name === 'AxiosError') {
-          watchedState.rssForm.errors = 'networkFault';
-        } else if (err.name === 'parsingError') {
-          watchedState.rssForm.errors = 'parsingFault';
-        } else {
-          watchedState.rssForm.errors = 'unknownError';
+        switch (err.name) {
+          case 'ValidationError':
+          case 'parsingError':
+            watchedState.rssForm.errors = err.message;
+            break;
+          case 'AxiosError':
+            watchedState.rssForm.errors = 'networkError';
+            break;
+          default:
+            watchedState.rssForm.errors = 'unknownError';
+            throw new Error(err.name);
         }
       });
   });
@@ -119,10 +122,13 @@ const app = () => {
       })
       .catch((err) => {
         watchedState.rssForm.processState = 'fault';
+        /* Тут не стал ставить switch, так как всего два типа ошибок */
         if (err.name === 'AxiosError') {
-          watchedState.rssForm.errors = 'networkFault';
+          watchedState.rssForm.errors = 'networkError';
+        } else {
+          watchedState.rssForm.errors = 'unknownError';
+          throw new Error(err.name);
         }
-        watchedState.rssForm.errors = err.message;
       }));
     Promise.all(promises).finally(() => setTimeout(() => getUpdatedPosts(), 5000));
   };
