@@ -1,4 +1,4 @@
-const pullNewFeeds = (url) => {
+const getProxiedUrl = (url) => {
   const uniqueFeedUrl = new URL('https://allorigins.hexlet.app/get');
   uniqueFeedUrl.searchParams.set('disableCache', 'true');
   uniqueFeedUrl.searchParams.set('url', url);
@@ -10,6 +10,7 @@ const parseRss = (content, url = null) => {
   if (feedDom.querySelector('parsererror')) {
     const error = new Error(feedDom.querySelector('parsererror').textContent);
     error.name = 'parsingError';
+    error.message = 'noValidRssContained';
     throw error;
   }
 
@@ -35,4 +36,4 @@ const parseRss = (content, url = null) => {
   return { feed, posts };
 };
 
-export { pullNewFeeds, parseRss };
+export { getProxiedUrl, parseRss };
