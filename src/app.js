@@ -12,8 +12,6 @@ import { getProxiedUrl, parseRss } from './rssParser.js';
 
 const getResponse = (url) => axios.get(getProxiedUrl(url));
 
-const generateId = (elements) => ((elements.length === 0) ? 1 : elements.length + 1);
-
 const app = () => {
   const defaultLanguage = 'ru';
 
@@ -36,21 +34,36 @@ const app = () => {
   });
 
   const state = {
+    uiState: {
+      viewedPosts: [],
+    },
+    processState: 'filling',
     rssForm: {
-      processState: 'filling',
       errors: null,
     },
     feeds: [],
     posts: [],
-    viewedPosts: [],
   };
 
-  const watchedState = watcher(state, i18nextInstance);
-
   const rssForm = document.querySelector('.rss-form');
+  const input = document.getElementById('url-input');
+  const submitButton = document.querySelector('.px-sm-5');
+  const feedBack = document.querySelector('.feedback');
+  const feedsContainer = document.querySelector('.feeds');
   const postsContainer = document.querySelector('.posts');
 
-  rssForm.addEventListener('submit', (e) => {
+  const domElements = {
+    rssForm,
+    input,
+    submitButton,
+    feedBack,
+    feedsContainer,
+    postsContainer,
+  };
+
+  const watchedState = watcher(domElements, state, i18nextInstance);
+
+  domElements.rssForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
     const newUrl = formData.get('url');
@@ -64,23 +77,19 @@ const app = () => {
     schema.validate(newUrl)
       .then(() => {
         watchedState.rssForm.errors = null;
-        watchedState.rssForm.processState = 'loading';
+        watchedState.processState = 'loading';
         return getResponse(newUrl);
       })
       .then((response) => {
         const parsedData = parseRss(response.data.contents, newUrl);
-        parsedData.feed.id = generateId(watchedState.feeds);
         watchedState.feeds.unshift(parsedData.feed);
-        const postsWithId = parsedData.posts.map((post, index) => {
-          const postId = generateId(watchedState.posts) + index;
-          return { ...post, id: postId, feedId: parsedData.feed.id };
-        });
+        const postsWithId = parsedData.posts.map((post) => ({ ...post, id: _.uniqueId() }));
         watchedState.posts = postsWithId.concat(watchedState.posts);
         watchedState.rssForm.errors = null;
-        watchedState.rssForm.processState = 'success';
+        watchedState.processState = 'success';
       })
       .catch((err) => {
-        watchedState.rssForm.processState = 'fault';
+        watchedState.processState = 'fault';
         switch (err.name) {
           case 'ValidationError':
           case 'parsingError':
@@ -96,10 +105,10 @@ const app = () => {
       });
   });
 
-  postsContainer.addEventListener('click', (e) => {
+  domElements.postsContainer.addEventListener('click', (e) => {
     const selectedPost = watchedState.posts
-      .flatMap((el) => (el.id === Number(e.target.dataset.id) ? el.id : []));
-    watchedState.viewedPosts = selectedPost.concat(watchedState.viewedPosts);
+      .flatMap((el) => (el.id === e.target.dataset.id ? el.id : []));
+    watchedState.uiState.viewedPosts = selectedPost.concat(watchedState.uiState.viewedPosts);
   });
 
   const getUpdatedPosts = () => {
@@ -107,22 +116,16 @@ const app = () => {
     const promises = urls.map((url) => getResponse(url)
       .then((updatedResponse) => parseRss(updatedResponse.data.contents))
       .then((parsedContents) => {
-        const { feed, posts } = parsedContents;
-        watchedState.feeds.forEach((oldFeed) => {
-          if (oldFeed.title === feed.title) {
-            feed.id = oldFeed.id;
-          }
-        });
+        const { posts } = parsedContents;
         const newPosts = _.differenceBy(posts, watchedState.posts, 'title');
-        const newPostWithId = newPosts.map((post, index) => {
-          const newPostId = generateId(watchedState.posts) + index;
-          return { ...post, id: newPostId, feedId: feed.id };
-        });
+        if (newPosts.length === 0) {
+          return;
+        }
+        const newPostWithId = newPosts.map((post) => ({ ...post, id: _.uniqueId() }));
         watchedState.posts = newPostWithId.concat(watchedState.posts);
       })
       .catch((err) => {
-        watchedState.rssForm.processState = 'fault';
-        /* Тут не стал ставить switch, так как всего два типа ошибок */
+        watchedState.processState = 'fault';
         if (err.name === 'AxiosError') {
           watchedState.rssForm.errors = 'networkError';
         } else {
