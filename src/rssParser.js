@@ -7,8 +7,9 @@ const getProxiedUrl = (url) => {
 
 const parseRss = (content, url = null) => {
   const feedDom = new DOMParser().parseFromString(content, 'application/xml');
-  if (feedDom.querySelector('parsererror')) {
-    const error = new Error(feedDom.querySelector('parsererror').textContent);
+  const parserError = feedDom.querySelector('parsererror');
+  if (parserError) {
+    const error = new Error(parserError.textContent);
     error.name = 'parsingError';
     error.message = 'noValidRssContained';
     throw error;
