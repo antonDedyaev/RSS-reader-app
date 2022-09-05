@@ -1,6 +1,6 @@
 export default {
   translation: {
-    uIElements: {
+    uiElements: {
       successMessage: 'RSS успешно загружен',
       feedTitle: 'Фиды',
       postTitle: 'Посты',
