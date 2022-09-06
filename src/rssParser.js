@@ -17,11 +17,7 @@ const parseRss = (content, url = null) => {
 
   const title = feedDom.querySelector('title').textContent;
   const description = feedDom.querySelector('description').textContent;
-  const feed = {
-    title,
-    description,
-    url,
-  };
+  const feed = { title, description, url };
 
   const items = feedDom.querySelectorAll('item');
   const posts = [...items].map((item) => {
