@@ -7,7 +7,7 @@
 
 Rss reader is used to read and agreggate data from RSS feeds, such as news and blogs. Add any number of RSS feeds, the app will update them automatically and include new posts into the list.
 
-Go ahead and [**try it**](https://frontend-project-lvl3-git-main-aintdead86.vercel.app)
+### Go ahead and [***try it***](https://frontend-project-lvl3-git-main-aintdead86.vercel.app)!
 
 Installation:
 1. Clone the repository using the following command:
