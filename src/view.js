@@ -32,7 +32,6 @@ const renderProcessState = (elements, status, i18nextInstance) => {
     case 'filling':
       elements.submitButton.disabled = false;
       elements.input.classList.remove('is-invalid');
-      elements.rssForm.reset();
       break;
     case 'loading':
       elements.submitButton.disabled = true;
@@ -51,8 +50,7 @@ const renderProcessState = (elements, status, i18nextInstance) => {
       elements.feedBack.classList.remove('text-success');
       elements.feedBack.classList.add('text-danger');
       break;
-    default:
-      throw new Error(`Unknown process state: ${status}`);
+    default: throw new Error(`Unknown process state: ${status}`);
   }
   elements.input.focus();
 };
@@ -134,8 +132,7 @@ const watcher = (elements, state, i18nextInstance) => onChange(state, (path) => 
     case 'uiState.viewedPosts':
       renderViewedPosts(state.uiState.viewedPosts);
       break;
-    default:
-      throw new Error(`Unknown path: ${path}`);
+    default: throw new Error(`Unknown path: ${path}`);
   }
 });
 
